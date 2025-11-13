@@ -59,8 +59,8 @@ class MotorAnalise:
     def gerar_boxplot(self):
         def plot():
             plt.boxplot(self.dados, patch_artist=True, boxprops=dict(facecolor='lightblue'))
-            plt.title('Boxplot dos Dados')
-            plt.ylabel('Valores')
+            plt.title(titulo)
+            plt.ylabel(label_y)
             plt.grid(True, linestyle='--', alpha=0.6)
         return self._gerar_grafico_como_base64(plot)
         
