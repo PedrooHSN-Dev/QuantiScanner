@@ -1,38 +1,54 @@
 import flet as ft
 
+def atualizar_view(estado, pagina):
+    """
+    Atualiza a view de resultados com base no estado.
+    Se o estado for nulo, reseta a view para o placeholder.
+    """
+    if not estado.metricas_atuais:
+        placeholder_view.visible = True
+        view_resultados.visible = False
+        
+        imagem_boxplot.src_base64 = None
+        campo_q1.value = ""
+        campo_q2.value = ""
+        campo_q3.value = ""
+        campo_iqr.value = ""
+        tabela_decis.rows.clear()
+        tabela_percentis.rows.clear()
+        
+        pagina.update()
+        return
+
+    imagem_boxplot.src_base64 = estado.boxplot_atual
+    
+    quartis = estado.metricas_atuais['quartis']
+    campo_q1.value = f"{quartis['Q1']:.4f}"
+    campo_q2.value = f"{quartis['Q2 (Mediana)']:.4f}"
+    campo_q3.value = f"{quartis['Q3']:.4f}"
+    campo_iqr.value = f"{quartis['Intervalo Interquartil (IQR)']:.4f}"
+
+    decis = estado.metricas_atuais['tabelas_resumo']['decis']
+    tabela_decis.rows.clear()
+    tabela_decis.rows.extend([
+        ft.DataRow(cells=[ft.DataCell(ft.Text(item['decil'])), ft.DataCell(ft.Text(str(item['valor'])))])
+        for item in decis
+    ])
+    
+    percentis = estado.metricas_atuais['tabelas_resumo']['percentis']
+    tabela_percentis.rows.clear()
+    tabela_percentis.rows.extend([
+        ft.DataRow(cells=[ft.DataCell(ft.Text(item['percentil'])), ft.DataCell(ft.Text(str(item['valor'])))])
+        for item in percentis
+    ])
+
+    placeholder_view.visible = False
+    view_resultados.visible = True
+    pagina.update()
+
 def criar_aba_resultados(estado, pagina):
 
-    def atualizar_view():
-        if not estado.metricas_atuais:
-            return
-
-        imagem_boxplot.src_base64 = estado.boxplot_atual
-        
-        quartis = estado.metricas_atuais['quartis']
-        campo_q1.value = f"{quartis['Q1']:.4f}"
-        campo_q2.value = f"{quartis['Q2 (Mediana)']:.4f}"
-        campo_q3.value = f"{quartis['Q3']:.4f}"
-        campo_iqr.value = f"{quartis['Intervalo Interquartil (IQR)']:.4f}"
-
-        decis = estado.metricas_atuais['tabelas_resumo']['decis']
-        tabela_decis.rows.clear()
-        tabela_decis.rows.extend([
-            ft.DataRow(cells=[ft.DataCell(ft.Text(item['decil'])), ft.DataCell(ft.Text(str(item['valor'])))])
-            for item in decis
-        ])
-        
-        percentis = estado.metricas_atuais['tabelas_resumo']['percentis']
-        tabela_percentis.rows.clear()
-        tabela_percentis.rows.extend([
-            ft.DataRow(cells=[ft.DataCell(ft.Text(item['percentil'])), ft.DataCell(ft.Text(str(item['valor'])))])
-            for item in percentis
-        ])
-
-        placeholder_view.visible = False
-        view_resultados.visible = True
-        pagina.update()
-
-    estado.callback_atualizar_view_resultados = atualizar_view
+    estado.callback_atualizar_view_resultados = lambda: atualizar_view(estado, pagina)
 
     def salvar_analise(e):
         nome_analise = campo_nome_analise.value
@@ -78,6 +94,8 @@ def criar_aba_resultados(estado, pagina):
 
     seletor_salvar_arquivo = ft.FilePicker(on_result=processar_resultado_exportacao)
     pagina.overlay.append(seletor_salvar_arquivo)
+    
+    global imagem_boxplot, campo_q1, campo_q2, campo_q3, campo_iqr, tabela_decis, tabela_percentis, placeholder_view, view_resultados
 
     imagem_boxplot = ft.Image(src_base64="", width=700, height=500, fit=ft.ImageFit.CONTAIN)
     

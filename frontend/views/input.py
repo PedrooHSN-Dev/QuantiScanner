@@ -1,4 +1,5 @@
 import flet as ft
+from frontend.views.results_tab import atualizar_view
 
 def criar_aba_entrada(estado, pagina, abas_principais):
     """
@@ -98,6 +99,16 @@ def criar_aba_entrada(estado, pagina, abas_principais):
             texto_status.value = f"Erro ao gerar gráfico: {ex}"
             texto_status.color = "red"
             pagina.update()
+            
+    def limpar_valores(e):
+        """Limpa os valores atuais e reseta os campos."""
+        estado.metricas_atuais = None
+        estado.boxplot_atual = None
+        entrada_manual.value = ""
+        texto_status.value = ""
+        atualizar_campos_resumo()
+        atualizar_view(estado, pagina)  # Reseta a aba de resultados também
+        pagina.update()
     
     
     # --- 2. COMPONENTES DA UI ---
@@ -132,8 +143,20 @@ def criar_aba_entrada(estado, pagina, abas_principais):
         on_click=lambda _: seletor_de_arquivos.pick_files(allowed_extensions=["xlsx", "xls"]),
         bgcolor="lightblue", color="black"
     )
-    btn_gerar = ft.ElevatedButton("Gerar Gráfico e Quartis", on_click=navegar_para_resultados, bgcolor="blue", color="white", height=50)
-
+    
+    btn_limpar = ft.ElevatedButton(
+        "Limpar", 
+        on_click=limpar_valores, 
+        bgcolor="red", 
+        color="white", 
+        height=50)
+    
+    btn_gerar = ft.ElevatedButton(
+        "Gerar Gráfico e Quartis",
+        on_click=navegar_para_resultados, 
+        bgcolor="blue", 
+        color="white",
+        height=50)
 
     # --- 3. LAYOUT FINAL ---
     
@@ -145,7 +168,7 @@ def criar_aba_entrada(estado, pagina, abas_principais):
                     ft.Text("Valores separados por vírgula (outros caracteres não são aceitos)", size=15),
                     ft.Text("Utilize ponto para valores decimais:", size=13),
                     ft.Row([entrada_manual, btn_calcular], spacing=10),
-                    ft.Row([btn_csv, btn_excel], spacing=10),
+                    ft.Row([btn_csv, btn_excel, btn_limpar], spacing=10),
                     texto_status,
                     ft.Container(height=20),
                     btn_gerar,
