@@ -5,6 +5,7 @@ import io
 import base64
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
+from reportlab.lib.utils import ImageReader
 
 class MotorAnalise:
     """Realiza todos os cálculos e a lógica de análise de dados."""
@@ -56,11 +57,11 @@ class MotorAnalise:
         img_base64 = base64.b64encode(buf.read()).decode('utf-8')
         return img_base64
 
-    def gerar_boxplot(self, titulo="Boxplot dos Dados", label_y="Valores"):
+    def gerar_boxplot(self, titulo="Boxplot dos Dados", label_y="Valores", cor='#ADD8E6'):
         def plot():
-            plt.boxplot(self.dados, patch_artist=True, boxprops=dict(facecolor='lightblue'))
-            plt.title(titulo)   # Usa o parâmetro recebido
-            plt.ylabel(label_y) # Usa o parâmetro recebido
+            plt.boxplot(self.dados, patch_artist=True, boxprops=dict(facecolor=cor))
+            plt.title(titulo)
+            plt.ylabel(label_y)
             plt.grid(True, linestyle='--', alpha=0.6)
         return self._gerar_grafico_como_base64(plot)
         
@@ -72,7 +73,7 @@ class MotorAnalise:
         df2 = pd.DataFrame(dados_decis).rename(columns={'decil': 'Métrica', 'valor': 'Valor'})
         df3 = pd.DataFrame(dados_percentis).rename(columns={'percentil': 'Métrica', 'valor': 'Valor'})
         df_final = pd.concat([df1, df2, df3], ignore_index=True)
-        df_final.to_csv(caminho_arquivo, index=False)
+        df_final.to_csv(caminho_arquivo, index=False, encoding='utf-8-sig', sep=',')
         
     def exportar_relatorio_completo_para_pdf(self, metricas, boxplot_base64, caminho_arquivo):
         c = canvas.Canvas(caminho_arquivo, pagesize=letter)
@@ -89,10 +90,18 @@ class MotorAnalise:
         
         c.drawText(texto)
         
+        y_atual = texto.getY()
+        
         if boxplot_base64:
             imagem_bytes = base64.b64decode(boxplot_base64)
-            imagem = io.BytesIO(imagem_bytes)
-            c.drawImage(imagem, 72, altura - 400, width=400, height=300)
+            imagem_buffer = io.BytesIO(imagem_bytes)
+            img = ImageReader(imagem_buffer)
+            
+            altura_imagem = 300
+            margem = 20
+            y_posicao_imagem = y_atual - altura_imagem - margem
+            
+            c.drawImage(img, 72, y_posicao_imagem, width=400, height=altura_imagem)
 
         c.save()
         return True

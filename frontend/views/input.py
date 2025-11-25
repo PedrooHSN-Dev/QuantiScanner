@@ -1,12 +1,9 @@
 import flet as ft
-from frontend.views.results_tab import atualizar_view
 
 def criar_aba_entrada(estado, pagina, abas_principais):
     """
     Cria a view (aba) para a entrada de dados do usuário
     """
-    
-    # --- 1. FUNÇÕES DE LÓGICA (EVENT HANDLERS) ---
     
     def atualizar_campos_resumo():
         """Função auxiliar para preencher os campos de resumo."""
@@ -107,11 +104,14 @@ def criar_aba_entrada(estado, pagina, abas_principais):
         entrada_manual.value = ""
         texto_status.value = ""
         atualizar_campos_resumo()
-        atualizar_view(estado, pagina)  # Reseta a aba de resultados também
+
+        if estado.callback_atualizar_view_resultados:
+             estado.callback_atualizar_view_resultados()  
+
         pagina.update()
     
     
-    # --- 2. COMPONENTES DA UI ---
+    # --- COMPONENTES DA UI ---
 
     seletor_de_arquivos = ft.FilePicker(on_result=processar_resultado_seletor_arquivos)
     pagina.overlay.append(seletor_de_arquivos)

@@ -73,9 +73,22 @@ def criar_aba_historico(estado, pagina, abas_principais):
                 raise ValueError("Análise não encontrada.")
 
             estado.motor_analise.carregar_dados_de_lista(dados_carregados['dados_brutos'])
-
             estado.metricas_atuais = estado.motor_analise.calcular_todas_metricas()
-            estado.boxplot_atual = estado.motor_analise.gerar_boxplot()
+            
+            if 'config_grafico' in dados_carregados:
+                estado.config_grafico = dados_carregados['config_grafico']
+            else:
+                estado.config_grafico = {
+                    'titulo': 'Distribuição dos Dados',
+                    'label_y': 'Valores',
+                    'cor': '#ADD8E6'
+                }
+            
+            estado.boxplot_atual = estado.motor_analise.gerar_boxplot(
+                titulo=estado.config_grafico['titulo'],
+                label_y=estado.config_grafico['label_y'],
+                cor=estado.config_grafico['cor']
+            )
 
             if estado.callback_atualizar_view_entrada:
                 estado.callback_atualizar_view_entrada()
