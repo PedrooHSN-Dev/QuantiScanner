@@ -56,11 +56,11 @@ class MotorAnalise:
         img_base64 = base64.b64encode(buf.read()).decode('utf-8')
         return img_base64
 
-    def gerar_boxplot(self):
+    def gerar_boxplot(self, titulo="Boxplot dos Dados", label_y="Valores"):
         def plot():
             plt.boxplot(self.dados, patch_artist=True, boxprops=dict(facecolor='lightblue'))
-            plt.title('Boxplot dos Dados')
-            plt.ylabel('Valores')
+            plt.title(titulo)   # Usa o parâmetro recebido
+            plt.ylabel(label_y) # Usa o parâmetro recebido
             plt.grid(True, linestyle='--', alpha=0.6)
         return self._gerar_grafico_como_base64(plot)
         

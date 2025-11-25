@@ -140,7 +140,7 @@ def criar_aba_entrada(estado, pagina, abas_principais):
     )
     btn_excel = ft.ElevatedButton(
         "Importar Excel",
-        on_click=lambda _: seletor_de_arquivos.pick_files(allowed_extensions=["xlsx", "xls"]),
+        on_click=lambda _: seletor_de_arquivos.pick_files(allowed_extensions=["xlsx"]),
         bgcolor="lightblue", color="black"
     )
     
