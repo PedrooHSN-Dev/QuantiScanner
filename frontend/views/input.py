@@ -5,6 +5,39 @@ def criar_aba_entrada(estado, pagina, abas_principais):
     Cria a view (aba) para a entrada de dados do usuário
     """
     
+    def abrir_ajuda_importacao(e):
+        dialogo_ajuda = ft.AlertDialog(
+            title=ft.Text("Como formatar seu arquivo?"),
+            content=ft.Column([
+                ft.Text("Para importar dados corretamente, siga estas regras:", weight=ft.FontWeight.BOLD),
+                ft.Divider(),
+                ft.Text("1. Use apenas uma coluna de dados."),
+                ft.Text("2. O sistema lê automaticamente a primeira coluna (A)."),
+                ft.Text("3. A primeira linha é considerada cabeçalho (título)."),
+                ft.Text("4. Evite textos ou células vazias no meio dos números."),
+                ft.Text("5. Arquivos Excel devem ser .xlsx"),
+                ft.Container(height=10),
+                ft.Text("Exemplo Visual:", weight=ft.FontWeight.BOLD),
+                ft.Container(
+                    content=ft.Column([
+                        ft.Text("A (Coluna 1)", color="grey"),
+                        ft.Container(ft.Text("Valores (Cabeçalho)"), bgcolor="grey", padding=5, border_radius=5),
+                        ft.Text("10.5"),
+                        ft.Text("20.2"),
+                        ft.Text("15.8"),
+                    ]),
+                    padding=10,
+                    border=ft.border.all(1, "grey"),
+                    border_radius=5
+                )
+            ], tight=True, width=400),
+            actions=[
+                ft.TextButton("Entendi", on_click=lambda _: pagina.close(dialogo_ajuda))
+            ],
+        )
+        pagina.open(dialogo_ajuda)
+        pagina.update()
+    
     def atualizar_campos_resumo():
         """Função auxiliar para preencher os campos de resumo."""
         if estado.metricas_atuais:
@@ -143,7 +176,12 @@ def criar_aba_entrada(estado, pagina, abas_principais):
         on_click=lambda _: seletor_de_arquivos.pick_files(allowed_extensions=["xlsx"]),
         bgcolor="lightblue", color="black"
     )
-    
+    btn_ajuda_arquivo = ft.IconButton(
+        icon=ft.Icons.HELP_OUTLINE,
+        tooltip="Como formatar o arquivo?",
+        on_click=abrir_ajuda_importacao,
+        icon_color="blue"
+    )
     btn_limpar = ft.ElevatedButton(
         "Limpar", 
         on_click=limpar_valores, 
@@ -168,7 +206,7 @@ def criar_aba_entrada(estado, pagina, abas_principais):
                     ft.Text("Valores separados por vírgula (outros caracteres não são aceitos)", size=15),
                     ft.Text("Utilize ponto para valores decimais:", size=13),
                     ft.Row([entrada_manual, btn_calcular], spacing=10),
-                    ft.Row([btn_csv, btn_excel, btn_limpar], spacing=10),
+                    ft.Row([btn_csv, btn_excel, btn_ajuda_arquivo, btn_limpar], spacing=10),
                     texto_status,
                     ft.Container(height=20),
                     btn_gerar,
@@ -189,3 +227,5 @@ def criar_aba_entrada(estado, pagina, abas_principais):
         spacing=20,
         vertical_alignment=ft.CrossAxisAlignment.START
     )
+    
+    
