@@ -1,0 +1,7 @@
+venv/
+__pycache__
+historico_quantiscanner.db
+exports/
+dist/
+build/
+QuantiScanner.spec
